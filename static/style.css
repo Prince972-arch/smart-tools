@@ -1,0 +1,21 @@
+body{
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:20px;
+  color:#222;
+}
+header { text-align:center; margin-bottom:16px; }
+.container { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
+.card { background:#fff; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.06); padding:18px; width:520px; }
+.inline-form input { padding:8px; margin:6px 4px; border-radius:6px; border:1px solid #ddd; }
+.inline-form button{ padding:8px 12px; border-radius:6px; border:none; background:#0984e3; color:#fff; cursor:pointer; }
+table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
+th, td{ border:1px solid #ececec; padding:8px; text-align:left; }
+th{ background:#fafafa; }
+.auth-card{ background:#fff; width:360px; margin:70px auto; padding:20px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.06); text-align:center; }
+.auth-card input{ width:80%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ddd; }
+.auth-card button{ padding:8px 12px; border-radius:6px; border:none; background:#10ac84; color:#fff; cursor:pointer; }
+.error{ color:#e74c3c; }
+.total{ font-size:16px; margin-top:8px; }
+.danger{ color:#e74c3c; text-decoration:none; font-weight:600; }

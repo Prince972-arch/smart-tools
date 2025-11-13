@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Daily Expense Records</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>📅 Daily Expense Records</h1>
+    <p><a href="/daily">Add New Day</a> | <a href="/dashboard">Dashboard</a></p>
+
+    <form method="get" style="margin-top:12px;">
+      <label>From: <input type="date" name="start_date" value="{{ start_date }}"></label>
+      <label>To: <input type="date" name="end_date" value="{{ end_date }}"></label>
+      <button type="submit">Filter</button>
+      {% if start_date or end_date %}
+        <a href="/daily_records">Reset</a>
+      {% endif %}
+    </form>
+  </header>
+
+  <table>
+    <thead><tr><th>ID</th><th>Date</th><th>Total</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td>{{ r[0] }}</td>
+        <td>{{ r[1] }}</td>
+        <td>{{ r[2] }}</td>
+        <td>
+          <a href="/view_daily/{{ r[0] }}">View</a> | 
+          <a href="/delete_daily/{{ r[0] }}" class="danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

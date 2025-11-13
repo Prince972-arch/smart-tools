@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Tools Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* -------------------------------------------------
+            Variables & Resets
+            ------------------------------------------------- */
+        :root {
+            --primary: #1a73e8; /* Google Blue */
+            --primary-dark: #1558c0;
+            --secondary: #e8f0fe;
+            --danger: #ea4335;
+            --bg: #f8f9fa;
+            --card: #fff;
+            --text: #202124;
+            --muted: #5f6368;
+            --border-light: #dadce0;
+            --radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Slightly softer shadow */
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 16px;
+        }
+
+        /* -------------------------------------------------
+            Sidebar & Navigation
+            ------------------------------------------------- */
+        .sidebar {
+            width: 250px;
+            background: var(--card);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 1rem;
+            position: fixed;
+            height: 100vh;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 20;
+        }
+
+        .sidebar h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding: 0 0.5rem;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .sidebar a:hover {
+            background: var(--secondary);
+            color: var(--primary);
+        }
+
+        .sidebar a.active {
+            background: var(--primary);
+            color: #fff;
+        }
+        
+        .sidebar a.active .material-icons {
+            color: #fff;
+        }
+        
+        .sidebar a .material-icons {
+            font-size: 1.4rem;
+            color: var(--muted);
+        }
+        
+        /* -------------------------------------------------
+            Main Layout & Navbar
+            ------------------------------------------------- */
+        .main {
+            margin-left: 250px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
+        }
+
+        .navbar {
+            background: var(--card);
+            border-bottom: 1px solid var(--border-light);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: flex-end; /* Push content to the right */
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        /* Hide h1 on desktop, show only on mobile when sidebar is hidden */
+        .navbar h1 {
+            display: none; 
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-right: auto;
+        }
+
+        .navbar p {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .navbar a {
+            color: var(--danger);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 1rem;
+            transition: color 0.2s;
+        }
+        
+        .navbar a:hover {
+            color: #c53929;
+        }
+
+        /* -------------------------------------------------
+            Hamburger Menu
+            ------------------------------------------------- */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            background: var(--card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            padding: 0.5rem 0.6rem;
+            cursor: pointer;
+            z-index: 30;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--primary);
+            margin: 4px 0;
+            transition: 0.3s;
+        }
+
+        /* -------------------------------------------------
+            Content Area & Grid
+            ------------------------------------------------- */
+        .content {
+            flex-grow: 1;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            max-width: 1500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* Card that spans two columns (for tables/charts that need more space) */
+        .card.span-2 {
+            grid-column: span 2;
+        }
+
+        /* -------------------------------------------------
+            Card & Elements
+            ------------------------------------------------- */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.75rem;
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        
+        .card h3 {
+             font-size: 1.1rem;
+             font-weight: 600;
+             margin-top: 1.5rem;
+             margin-bottom: 1rem;
+             color: var(--text);
+        }
+
+        .total {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        
+        .total strong {
+            color: var(--primary);
+        }
+
+        /* -------------------------------------------------
+            Forms (Responsive Grid)
+            ------------------------------------------------- */
+        .inline-form {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Default 4 columns */
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Adjusting for the URL form which has fewer elements */
+        .card:nth-child(2) .inline-form {
+            grid-template-columns: 3fr 1fr;
+        }
+
+        .inline-form input,
+        .inline-form button {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .inline-form input {
+            background: var(--bg);
+        }
+        
+        .inline-form input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+        }
+
+        .inline-form button {
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            grid-column: span 1;
+        }
+        
+        /* Make button span full width on small forms to fill the grid */
+        .card:nth-child(2) .inline-form button {
+            grid-column: span 1;
+        }
+
+        .inline-form button:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Force Description input to take more space on Expense form */
+        .inline-form input[name="description"] {
+            grid-column: span 1; /* Default desktop setting */
+        }
+        
+        /* -------------------------------------------------
+            Table
+            ------------------------------------------------- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        th,
+        td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f3f4;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        a.danger {
+            color: var(--danger);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* Tweak for long URL display */
+        table a:not(.danger) {
+            color: var(--primary);
+            text-decoration: underline;
+            word-break: break-all;
+        }
+        
+        /* -------------------------------------------------
+            Charts & Separators
+            ------------------------------------------------- */
+        .chart-container {
+            position: relative;
+            height: 280px; /* Set a fixed height for canvas wrapper */
+        }
+
+        canvas {
+            width: 100% !important;
+            max-height: 280px;
+        }
+
+        hr {
+            margin: 1.5rem 0;
+            border: 0;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        /* Hide some table columns on smaller screens */
+        .table-responsive td:nth-child(1), 
+        .table-responsive th:nth-child(1) {
+             /* ID column */
+             display: none;
+        }
+        
+        .table-responsive td:nth-child(3), 
+        .table-responsive th:nth-child(3) {
+             /* Category column */
+             display: table-cell; /* Show by default */
+        }
+
+        /* -------------------------------------------------
+            Responsive Media Queries
+            ------------------------------------------------- */
+
+        /* Tablet/Large Mobile Screens */
+        @media (max-width: 1200px) {
+             .content {
+                grid-template-columns: 1fr; /* Stack cards vertically */
+                padding: 1.5rem;
+            }
+            .card.span-2 {
+                grid-column: span 1;
+            }
+             /* Expense form inputs stack better */
+            .inline-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .inline-form input[name="description"],
+            .inline-form button {
+                 grid-column: span 2; /* Make description and button full width */
+            }
+            /* URL Shortener form */
+            .card:nth-child(2) .inline-form {
+                grid-template-columns: 1fr;
+            }
+            .card:nth-child(2) .inline-form input,
+            .card:nth-child(2) .inline-form button {
+                grid-column: span 1;
+            }
+        }
+        
+        /* Mobile Screens */
+        @media (max-width: 900px) {
+            /* Sidebar behavior */
+            .sidebar {
+                transform: translateX(-300px);
+                box-shadow: none;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+                box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.4); /* Overlay for focus */
+            }
+            
+            /* Main content adjustment */
+            .main {
+                margin-left: 0;
+                width: 100%; /* Take full width */
+            }
+
+            /* Navbar adjustment */
+            .navbar {
+                 justify-content: flex-end;
+            }
+            
+            .navbar h1 {
+                 display: block; /* Show Dashboard title */
+            }
+            
+            .navbar p {
+                display: none; /* Hide 'Welcome, User' on small screens */
+            }
+            
+            /* Hamburger menu */
+            .hamburger {
+                display: block;
+                z-index: 30;
+                top: 0.75rem;
+                left: 0.75rem;
+                padding: 0.5rem;
+                background: var(--bg);
+            }
+        }
+        
+        /* Extra Small Mobile Optimization */
+        @media (max-width: 550px) {
+            .content {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1.25rem;
+            }
+            
+            /* Stack form inputs entirely on top of each other */
+            .inline-form {
+                 grid-template-columns: 1fr;
+                 gap: 0.75rem;
+            }
+            
+            .inline-form input,
+            .inline-form button {
+                 grid-column: span 1;
+            }
+
+            /* Table Optimization */
+            .table-responsive td:nth-child(3), 
+            .table-responsive th:nth-child(3) {
+                 /* Hide Category column on very small screens */
+                 display: none;
+            }
+            
+            /* Short URL table cleanup */
+             .card:nth-child(2) table td:nth-child(3) { 
+                 /* Hide Short Link column since URL is long anyway */
+                 display: none;
+             }
+             .card:nth-child(2) table th:nth-child(3) { 
+                 display: none;
+             }
+             
+             .card h2 {
+                 font-size: 1.2rem;
+             }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hamburger" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <aside class="sidebar">
+        <h2>Smart Tools</h2>
+        <a href="#" class="active"><span class="material-icons">dashboard</span> Dashboard</a>
+        <a href="/daily"><span class="material-icons">event_note</span> Daily Sheet</a>
+        <a href="/daily_records"><span class="material-icons">folder_open</span> All Records</a>
+        <a href="/shorten"><span class="material-icons">link</span> URL Shortener</a>
+        <a href="/logout"><span class="material-icons">logout</span> Logout</a>
+    </aside>
+
+    <div class="main">
+        <nav class="navbar">
+            <h1>Smart Tools Dashboard</h1>
+            <p>Welcome, <b>{{ username }}</b> | <a href="/logout">Logout</a></p>
+        </nav>
+
+        <div class="content">
+            <section class="card span-2"> <h2><span class="material-icons">payments</span> Expense Tracker</h2>
+                <form action="/add_expense" method="POST" class="inline-form">
+                    <input type="text" name="description" placeholder="Description" required>
+                    <input type="text" name="category" placeholder="Category (e.g. Food)">
+                    <input type="number" step="0.01" name="amount" placeholder="Amount (৳)" required>
+                    <button type="submit">Add</button>
+                </form>
+
+                <p class="total">Total Spent: <strong>{{ total }}</strong> ৳</p>
+
+                <table class="table-responsive">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in expenses %}
+                        <tr>
+                            <td>{{ e[0] }}</td>
+                            <td>{{ e[2] }}</td>
+                            <td>{{ e[3] }}</td>
+                            <td>{{ e[4] }}</td>
+                            <td>{{ e[5] }}</td>
+                            <td><a href="/delete_expense/{{ e[0] }}" class="danger">Delete</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="card">
+                <h2><span class="material-icons">trending_up</span> Monthly Spending</h2>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </section>
+            
+            <section class="card">
+                <h2><span class="material-icons">pie_chart</span> Category Breakdown</h2>
+                 <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </section>
+
+
+            <section class="card span-2">
+                <h2><span class="material-icons">link</span> URL Shortener</h2>
+                <form action="/shorten" method="POST" class="inline-form">
+                    <input type="url" name="original_url" placeholder="Enter long URL" required>
+                    <button type="submit">Shorten</button>
+                </form>
+                
+                <h3>Recent Shortened Links</h3>
+                <table class="table-responsive">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Original URL</th>
+                            <th>Short Link</th>
+                            <th>Created</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in urls %}
+                        <tr>
+                            <td>{{ u[0] }}</td>
+                            <td><a href="{{ u[2] }}" target="_blank" title="{{ u[2] }}">{{ u[2][:50] }}{% if u[2]|length > 50 %}...{% endif %}</a></td>
+                            <td><a href="/{{ u[3] }}" target="_blank">website/{{ u[3] }}</a></td>
+                            <td>{{ u[4] }}</td>
+                            <td><a href="/delete_url/{{ u[0] }}" class="danger">Delete</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        async function fetchData(endpoint) {
+            const res = await fetch(endpoint);
+            if (!res.ok) return { labels: [], values: [] };
+            return res.json();
+        }
+
+        async function drawCharts() {
+            const monthly = await fetchData('/api/monthly_data');
+            const cat = await fetchData('/api/category_data');
+
+            // Monthly Line Chart
+            new Chart(document.getElementById('monthlyChart'), {
+                type: 'line',
+                data: {
+                    labels: monthly.labels,
+                    datasets: [{
+                        label: 'Monthly Spending (৳)',
+                        data: monthly.values,
+                        borderColor: 'var(--primary)',
+                        backgroundColor: 'rgba(26,115,232,0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Category Pie/Doughnut Chart
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: cat.labels,
+                    datasets: [{
+                        data: cat.values,
+                        backgroundColor: ['#1a73e8', '#34a853', '#fbbc05', '#ea4335', '#a142f4', '#00acc1'],
+                        borderColor: 'var(--card)',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        drawCharts();
+    </script>
+</body>
+
+</html>
