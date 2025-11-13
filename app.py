@@ -26,10 +26,6 @@ def get_db():
 def generate_code(n=6):
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
 
-@app.route('static/favicon.ico')
-def favicon():
-    return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
 # ----------------- AUTH -----------------
 @app.route('/register', methods=['GET','POST'])
 def register():
